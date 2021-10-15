@@ -56,3 +56,120 @@ db.inventario.insert({articulo: 'delantal', cantidad: 1000, _id: [451222, 23234]
 // - Los diferentes documentos pueden tener o no diferentes campos
 
 db.inventario.insert({articulo: 'gasas F4', cantidad: 60, observaciones: 'Lorem ipusm...'})
+
+// Inserción de varios documentos
+
+db.inventario.insert([ // Se introduce array de documentos en vez de documento único
+  {articulo: 'gasas 20', cantidad: 300},
+  {articulo: 'gasas 40', cantidad: 50},
+  {articulo: 'gasas 100', cantidad: 900},
+])
+
+// Inserción de varios documentos con opción ordered: true (valor por defecto)
+// Con este valor si se produce un error durante la operación de escritura, los documentos
+// restantes ya no se escriben aunque estos no contengan errores
+
+db.empleados.insert([
+  {_id: 1, nombre: 'Carlos', apellidos: 'Pérez'},
+  {_id: 2, nombre: 'Sara', apellidos: 'Gómez'},
+  {_id: 2, nombre: 'Juan', apellidos: 'Pérez'}, // A partir del error se paraliza la operación
+  {_id: 4, nombre: 'Luisa', apellidos: 'García'},
+])
+
+db.empleados.find()
+{ _id: 1, nombre: 'Carlos', apellidos: 'Pérez' }
+{ _id: 2, nombre: 'Sara', apellidos: 'Gómez' }
+
+// En cambio con la opción ordered: false a partir del error si los documentos son correctos
+// se realizará la operación de su escritura
+
+
+db.empleados.insert([
+  {_id: 10, nombre: 'Carlos', apellidos: 'Pérez'},
+  {_id: 11, nombre: 'Sara', apellidos: 'Gómez'},
+  {_id: 11, nombre: 'Juan', apellidos: 'Pérez'}, // A partir del error continua la operación
+  {_id: 13, nombre: 'Luisa', apellidos: 'García'},
+  {_id: 14, nombre: 'Pedro', apellidos: 'García'},
+], {ordered: false})
+
+db.empleados.find() // Ojo certificación
+...
+{ _id: 10, nombre: 'Carlos', apellidos: 'Pérez' }
+{ _id: 11, nombre: 'Sara', apellidos: 'Gómez' }
+{ _id: 13, nombre: 'Luisa', apellidos: 'García' }
+{ _id: 14, nombre: 'Pedro', apellidos: 'García' }
+
+// Inserción de documentos con subdocumentos o documentos embebidos
+// Pueden tener hasta 100 niveles de anidado
+
+db.empleados.insert({
+  nombre: 'Carlos',
+  apellidos: 'López Pérez',
+  turnos: ['mañana','noche'],
+  direccion: {
+    calle: 'Príncipe de Vergara, 100',
+    cp: '28010',
+    localidad: 'Madrid'
+  }
+})
+
+// En cuanto a tamaño es que BSON tienen y por tanto nuestro documento mongoDB tiene
+// un tamaño máximo de 16MB
+
+// Si usáramos tamaños superiores o quisieramos guardar binarios o recursos MongoDB
+// dispone de GridFS
+
+// Metodo insertOne()
+// Idem a todo lo que hemos visto pero solo para un documento
+// Sintaxis
+
+// db.<colección>.insertOne(
+//     <documento>,
+//     {
+//         writeConcern: <valores>, // relacionado con replica set
+//     }
+// ) 
+
+// Metodo insertMany()
+// Idem a todo lo que hemos visto pero para varios documentos
+// Sintaxis
+
+// db.<colección>.insertMany(
+//     <array-documentos>,
+//     {
+//         writeConcern: <valores>, // relacionado con replica set
+//         ordered: <boolean>
+//     }
+// ) 
+
+// insert() frente a insertOne() e insertMany() permite el método explain()
+
+
+// Método save() (Deprecado en la nueva shell mongosh)
+// Realiza operaciones de inserción o actualización (si ya existe el campo _id)
+
+// db.<colección>.save(
+//     <documento>,
+//     {
+//         writeConcern: <valores>, // relacionado con replica set
+//     }
+// ) 
+
+db.empleados.save({_id: 200, nombre: 'Pilar', apellidos: 'Gómez'}) // si el valor de _id no existe funciona como insert
+db.empleados.save({_id: 201, nombre: 'Juan', apellidos: 'Pérez'})
+
+db.empleados.save({_id: 200, nombre: 'Pilar', apellidos: 'Pérez Fernández'}) // En este caso como _id ya existe funciona
+// como una actualización (de todo el documento)
+// WriteResult({ "nMatched" : 1, "nUpserted" : 0, "nModified" : 1 })
+
+
+// Resto de métodos que pueden bajo determinados casos de uso generar inserciones
+
+// db.<colección>.update()
+// db.<colección>.updateOne()
+// db.<colección>.updateMany()
+// db.<colección>.findAndModify()
+// db.<colección>.findOneAndUpdate()
+// db.<colección>.findOneAndReplace()
+
+// db.<colección>.bulkWrite() // Agrupador
