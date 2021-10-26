@@ -159,4 +159,139 @@ db.monitoresGetafe.find({
 // Con operador $all
 
 db.monitoresGetafe.find({clases: {$all: ['esgrima','padel']}}) // Devolverá todos los docs que en su campo
-// clases contengan al menos esgrima y padel
+// clases contengan al menos esgrima y (AND lógico) padel
+
+
+// Consultas simples de comparación en arrays
+
+// Set de datos
+
+use gimnasio
+
+db.clientes3.insert([
+    { nombre: 'Carlos', apellidos: 'Pérez', puntuaciones: [100, 120, 44] }, 
+    { nombre: 'Sara', apellidos: 'López', puntuaciones: [60, 90, 70] },
+])
+
+db.clientes3.find({puntuaciones: {$gte: 50}}) // Devolver todos los doc en los que el campo puntuaciones
+// tiene al menos un elemento que cumpla la expresión
+
+// Consultas múltiples de comparación en arrays ¡Ojo certificación!
+
+db.clientes3.find({puntuaciones: {$gte: 50, $lt: 75}}) // Devuelve todos los doc que en el campo puntuaciones
+// tienen al menos un elemento que cumpla la expresión o la combinación de varios elementos que cumplan
+// cada una de las condiciones
+
+// Si lo que buscamos (que será una consulta más común) es que al menos un elemento cumpla
+// todas las condiciones => operador $elemMatch: <expresion>
+
+db.clientes3.find({puntuaciones: {$elemMatch: {$gte: 50, $lt: 75}}}) // Devuelve todos los doc en los que el
+// campo puntuaciones tiene al menos un elemento que cumple todas las condiciones
+
+// Consultas en posiciones exactas del array
+// Usa también la notación del punto
+
+db.monitoresGetafe.find({"clases.0": "padel"}) // Devuelve todos los doc que en el array clases su primer elemento
+// sea padel
+
+// Consultas en arrays de documentos
+
+// Set de datos
+
+db.clientes4.insert([
+    {
+        nombre: "Juan",
+        apellidos: "García",
+        direcciones: [
+            {calle: "Alcalá 40", cp: "28001", localidad: "Vigo"},
+            {calle: "Zamora, 13", cp: "34005", localidad: "Madrid"}
+        ]
+    },
+    {
+        nombre: "Lucía",
+        apellidos: "Gómez",
+        direcciones: [
+            {calle: "Alcalá 60", cp: "28001", localidad: "Madrid"},
+            {calle: "Fuencarral, 13", cp: "28002", localidad: "Madrid"}
+        ]
+    }
+])
+
+// Consulta de igualdad exacta en array de documentos
+
+db.clientes4.find({
+    direcciones: [
+        {calle: "Alcalá 40", cp: "28001", localidad: "Vigo"},
+        {calle: "Zamora, 13", cp: "34005", localidad: "Madrid"}
+    ]
+})
+
+// Si cambiamos el orden ya no lo devolverá
+
+db.clientes4.find({
+    direcciones: [
+        {calle: "Zamora, 13", cp: "34005", localidad: "Madrid"},
+        {calle: "Alcalá 40", cp: "28001", localidad: "Vigo"}
+    ]
+})
+
+// Consultas de igualdad en campos contenidos en subdocumentos de un array
+// La notación del punto
+
+db.clientes4.find({"direcciones.localidad": "Madrid"}) // Todos los documentos que en alguno (con independencia
+// de su posición) de los documentos del campo direcciones tiene el campo localidad igual a Madrid
+
+// Consultas de igualdad en campos contenidos en una posición concreta de un subdocumento
+// La notación del punto con su índice
+
+db.clientes4.find({"direcciones.0.localidad": "Madrid"}) // Todos los documentos en los que en el primer subdocumento (posición 0)
+// del array de direcciones el campo localidad es igual a Madrid
+
+// Consulta de múltiples condiciones en arrays de documentos ¡Ojo certificación!
+
+// Set de datos
+
+
+db.monitores.insert([
+    {
+        nombre: "Luis",
+        apellidos: "López",
+        actividades: [
+            {clase: "aerobic", turno: "mañana", homologado: false},
+            {clase: "aerobic", turno: "tarde", homologado: false},
+            {clase: "zumba", turno: "mañana", homologado: true},
+        ]
+    },
+    {
+        nombre: "María",
+        apellidos: "Pérez",
+        actividades: [
+            {clase: "aerobic", turno: "tarde", homologado: true},
+            {clase: "zumba", turno: "tarde", homologado: false},
+        ]
+    },
+    {
+        nombre: "Carlos",
+        apellidos: "Gónzalez",
+        actividades: [
+            {clase: "acquagym", turno: "tarde", homologado: true},
+            {clase: "zumba", turno: "tarde", homologado: true},
+        ]
+    },
+])
+
+
+// De nuevo si no utilizamos $elemMatch las consultas múltiples se pueden satisfacer por una combinación
+// de elemento del array
+
+
+db.monitores.find({"actividades.clase":"aerobic", "actividades.homologado": true}) // Devuelve todos los docs que
+// tengan al menos un subdoc en el campo actividades que cumpla que clase es aerobic y homologado es true o una
+// combinación de subdoc que clase sea aerobic y en otro subdoc homologado sea true
+
+// Para usar la consulta en el caso de uso de que al menos un elemento cumpla las dos condiciones como
+// en el caso de arrays de elemento primitivos usaremos $elemMatch
+
+db.monitores.find({actividades: {$elemMatch: {"clase":"aerobic", "homologado": true}}})
+
+// Proyección 
