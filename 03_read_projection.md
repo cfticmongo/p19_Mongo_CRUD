@@ -29,3 +29,31 @@ db.clientes3.find({},{nombre: 1})  // Devuelve todos los doc solamente con el ca
 db.clientes3.find({},{nombre: 1, apellidos: 1, _id: 0})  // Devuelve todos los doc con el campo nombre y el campo apellidos
 ```
 
+## Exclusión de los campos específicados e incluyendo el campo _id
+
+```
+db.clientes3.find({},{nombre: 0})  // Devuelve todos los doc con todos los campos excepto el campo nombre
+```
+
+## Combinación de exclusión e inclusión de campos que no sean _id (error)
+
+```
+db.clientes3.find({},{nombre: 0, apellidos: 1}) // error
+```
+
+## Proyección de documentos embebidos
+Notación del punto también en proyección
+
+```
+db.clientes4.find({},{nombre: 1, "direcciones.localidad": 1, _id: 0})
+```
+
+Devuelve
+{ nombre: 'Juan',
+  direcciones: [ { localidad: 'Vigo' }, { localidad: 'Madrid' } ] } // La estructura se mantiene
+{ nombre: 'Lucía',
+  direcciones: [ { localidad: 'Madrid' }, { localidad: 'Madrid' } ] }
+
+## Proyecciones con operadores
+
+Ver en resumen de operadores

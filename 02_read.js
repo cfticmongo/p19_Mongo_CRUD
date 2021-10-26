@@ -294,3 +294,58 @@ db.monitores.find({"actividades.clase":"aerobic", "actividades.homologado": true
 
 db.monitores.find({actividades: {$elemMatch: {"clase":"aerobic", "homologado": true}}})
 
+// Consulta de campos con valor null 
+
+// Set de datos
+
+db.monitores.insert({nombre: "Sergio", apellidos: "Pérez"})
+db.monitores.insert({nombre: "Paula", apellidos: "López", actividades: null})
+
+// 1ª Opción pasar el valor null en la consulta
+
+db.monitores.find({actividades: null}) // Devuelve tanto los que tiene el valor null como los que no tienen el campo
+
+{ _id: ObjectId("6178330c69cb92384b2e446d"),
+  nombre: 'Sergio',
+  apellidos: 'Pérez' }
+{ _id: ObjectId("6178330c69cb92384b2e446e"),
+  nombre: 'Paula',
+  apellidos: 'López',
+  actividades: null }
+
+// 2º Opción buscar por tipo de dato (empleado null)
+$type: <entero|string>
+
+
+db.monitores.find({actividades: {$type: 10}}) // Nos devolverá estrictamente los que contengan null en actividades
+
+// Método findOne()
+
+// Sintaxis
+// db.<colección>.findOne(
+//      <documento-de-consulta>,
+//      <documento-de-proyección> //opcional    
+// )
+
+// Idéntico a find() salvo que devuelve solamente un documento
+// Este método está pensado para usar en el documento de consulta condiciones que normalmente
+// solo cumplan un documento
+//     -campo o campos únicos
+
+db.clientes4.findOne({_id: ObjectId("6178143c69cb92384b2e4457")}) // O un campo único
+
+// No es obligatorio que la consulta devuelva un valor único por lo que si lo usamos para consultas
+// que pudieran devolver varios documentos debemos tener presente que solo devolverá la primera
+// coincidencia
+
+// Set de datos
+
+db.clientes.insert([
+    {nombre: 'Juan', apellidos: 'López'},
+    {nombre: 'Sara', apellidos: 'López'},
+    {nombre: 'Carlos', apellidos: 'López'},
+    {nombre: 'Raquel', apellidos: 'López'},
+    {nombre: 'Raquel', apellidos: 'González'},
+])
+
+db.clientes.findOne({apellidos: 'López'}) // No tendría demasiado caso de uso
