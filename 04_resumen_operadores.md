@@ -120,3 +120,4 @@ db.clientes.find({edad: {$exists: false}}) // Devolverá los docs que no tengan 
 ```
 
 $regex ¡Ojo certificación!
+
