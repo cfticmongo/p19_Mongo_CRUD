@@ -294,4 +294,3 @@ db.monitores.find({"actividades.clase":"aerobic", "actividades.homologado": true
 
 db.monitores.find({actividades: {$elemMatch: {"clase":"aerobic", "homologado": true}}})
 
-// Proyección 
