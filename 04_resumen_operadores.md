@@ -1,4 +1,4 @@
-# Resumen operadores para operaciones Read
+# Resumen operadores para operaciones de consulta y proyección
 
 ## Operadores de comparación
 
