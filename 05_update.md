@@ -403,3 +403,69 @@ db.libros.updateOne(
   autor: 'John Grisham',
   precios: [ 22, 22, 15, 18, 22, 15 ] }
 
+### Actualización de arrays añadiendo un nuevo valor salvo que exista
+$addToSet
+{$addToSet: {<campo-array>: <valor>}}
+
+```
+db.libros.updateMany(
+    {categorias: {$exists: true}}, // todos los docs que tengan el campo categorias
+    {$addToSet: {categorias: 'best-seller'}} // Todos los valores de campo categorías tendrán que ser array
+)
+```
+Solo añadirá el valor como nuevo elemento al final array siempre que no existe, si existiera no hace nada
+
+### Actualización de arrays eliminando el primer o último elemento
+$pop
+{$pop: {<campo-array>: <1 | -1>}} // Con -1 elimina el primero y con 1 elimina el último
+
+```
+db.libros.updateOne(
+    {titulo: 'The Firm'},
+    {$pop: {opiones: -1}}
+)
+```
+
+### Actualización de arrays eliminando elementos que cumplan una condición
+$pull
+{$pull: {<campo-array>: <expresión>}}
+
+```
+db.libros.update(
+    {titulo: "The Firm"},
+    {$set: {categorias: ["USA", "castellano", "drama", "clásico", "suspense"]}}
+)
+```
+
+```
+db.libros.update(
+    {titulo: "The Firm"},
+    {$pull: {categorias: "drama"}} // Elimina el elemento con el valor drama
+)
+```
+
+{ _id: ObjectId("617981c84267241ee0aed7ab"),
+  titulo: 'The Firm',
+  autor: 'John Grisham',
+  opiniones: [ 5, 5, 5, 5, 5 ],
+  categorias: [ 'USA', 'castellano', 'clásico', 'suspense' ] }
+
+### Actualización de arrays añadiendo elementos
+$push
+{$push: {<campo-array>: <valor | $each: [array de valores]>}}
+
+```
+db.libros.insert({titulo: "El Caso Fitgerald", autor: "John Grisham", categorias: ["novela","drama"]})
+```
+
+```
+db.libros.updateOne(
+    {titulo: "El Caso Fitgerald"},
+    {$push: {categorias: {$each: ['best-seller','2017']}}}
+)
+```
+
+{ _id: ObjectId("617992b74267241ee0aed7ad"),
+  titulo: 'El Caso Fitgerald',
+  autor: 'John Grisham',
+  categorias: [ 'novela', 'drama', 'best-seller', '2017' ] }
